@@ -1,0 +1,15 @@
+name: nba-ai
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - numpy
+  - xgboost
+  - scipy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - ipykernel
+  - pytorch
+  - torchvision
+  - torchaudio
