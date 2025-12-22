@@ -77,7 +77,7 @@ def all_player_stats():
                         else:
                             df.to_csv(out_file, index=False, mode='a', header=False)
 
-                    time.sleep(5)
+                    time.sleep(1)
                     break  # success, stop retrying
                 except (TimeoutError, requests.exceptions.ReadTimeout, requests.exceptions.ConnectionError) as e:
                     # Exponential backoff
