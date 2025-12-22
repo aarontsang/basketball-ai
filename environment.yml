@@ -8,8 +8,6 @@ dependencies:
   - scipy
   - pandas
   - scikit-learn
+  - scikit-optimize
   - matplotlib
   - ipykernel
-  - pytorch
-  - torchvision
-  - torchaudio
