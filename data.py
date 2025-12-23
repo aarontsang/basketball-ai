@@ -90,9 +90,9 @@ def all_player_stats():
 
 
 if __name__ == "__main__":
-    # games_to_date('2024-25', 'out/season_games_2024_25.csv')
-    # games_to_date('2025-26', 'out/season_games_2025_26.csv')
+    games_to_date('2024-25', 'out/season_games_2024-25.csv')
+    games_to_date('2025-26', 'out/season_games_2025-26.csv')
     # get_players()
     # get_teams()
-    all_player_stats()
+    # all_player_stats()
     
