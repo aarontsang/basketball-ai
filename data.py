@@ -65,7 +65,7 @@ def all_player_stats():
         for season in ['2024-25', '2025-26']:
             out_file = Path(f'out/player_stats_{season}.csv')
             
-            for attempt in range(5):
+            for attempt in range(100):
                 try:
                     df = active_player_stats(player_id, season)
                     df['PLAYER_ID'] = player_id
