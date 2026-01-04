@@ -30,7 +30,49 @@ def get_batch_csv_info(directory: str) -> list[pd.DataFrame]:
     return csv_info_list
 
 
+def create_opponent_data(data: pd.DataFrame) -> pd.DataFrame:
+    opp = data[[
+        "GAME_ID",
+        "GAME_DATE",
+        "TEAM_ID",
+        "WL_ewm_10",
+        "PTS_ewm_10",
+        "EFG_ewm_10",
+        "TS_ewm_10",
+        "ast_tov_ewm_10",
+        "tov_rate_ewm_10",
+        "oreb_rate_ewm_10",
+        "stocks_ewm_10",
+        "pf_rate_ewm_10"
+    ]].copy()
+
+    opp = opp.rename(columns={
+        "TEAM_ID": "OPP_TEAM_ID",
+        "WL_ewm_10": "OPP_WL_ewm_10",
+        "PTS_ewm_10": "OPP_PTS_ewm_10",
+        "EFG_ewm_10": "OPP_EFG_ewm_10",
+        "TS_ewm_10": "OPP_TS_ewm_10",
+        "ast_tov_ewm_10": "OPP_ast_tov_ewm_10",
+        "tov_rate_ewm_10": "OPP_tov_rate_ewm_10",
+        "oreb_rate_ewm_10": "OPP_oreb_rate_ewm_10",
+        "stocks_ewm_10": "OPP_stocks_ewm_10",
+        "pf_rate_ewm_10": "OPP_pf_rate_ewm_10"
+    })
+
+    merged = data.merge(
+        opp,
+        on=["GAME_ID", "GAME_DATE"]
+    )
+
+
+    # remove self-joins
+    merged = merged[merged["TEAM_ID"] != merged["OPP_TEAM_ID"]]
+
+    return merged
+
+
 def modify_data_for_model(data: pd.DataFrame) -> pd.DataFrame:
+    stat_list = ["WL", "PTS", "EFG", "TS", "ast_tov", "tov_rate", "oreb_rate", "stocks", "pf_rate"]
     # Example modification: Fill NaN values with 0
     data = data.fillna(0)
     # Add more feature engineering steps as needed
@@ -66,7 +108,60 @@ def modify_data_for_model(data: pd.DataFrame) -> pd.DataFrame:
     #Personal fouls rate
     data["pf_rate"] = data["PF"] / (data["MIN"] + 1e-8) # Add small value to avoid division by zero
 
+    #Get wins so far
+    data["wins_so_far"] = (
+        data.groupby("TEAM_ID")["WL"]
+        .shift(1)
+        .cumsum()
+    )
 
+    data["games_so_far"] = (
+        data.groupby("TEAM_ID")["WL"]
+        .cumcount()
+    )
+
+    #Get win percentage so far
+    data["win_pct"] = data["wins_so_far"] / (data["games_so_far"] + 1e-8)  # Add small value to avoid division by zero
+
+    #Rolling win percentages
+    data["win_percentage_last_5"] = (
+        data.groupby("TEAM_ID")["WL"]
+        .shift(1)
+        .rolling(window=5, min_periods=1)
+        .mean()
+    )
+
+    data["win_percentage_last_10"] = (
+        data.groupby("TEAM_ID")["WL"]
+        .shift(1)
+        .rolling(window=10, min_periods=1)
+        .mean()
+    )
+
+    for stat in stat_list:
+        data[f"{stat}_ewm_5"] = (
+            data.groupby("TEAM_ID")[stat]
+            .shift(1)
+            .ewm(span=5, min_periods=1)
+            .mean()
+        )
+
+        data[f"{stat}_ewm_10"] = (
+            data.groupby("TEAM_ID")[stat]
+            .shift(1)
+            .ewm(span=10, min_periods=1)
+            .mean()
+        )
+
+    data["winstreak"] = (
+        data.groupby("TEAM_ID")["WL"]
+          .shift(1)
+          .groupby(data["TEAM_ID"])
+          .transform(lambda x: x.groupby((x != 1).cumsum()).cumcount())
+
+    ).clip(-0.1,0.1)
+
+    
 
 if __name__ == "__main__":
     pass
