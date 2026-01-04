@@ -138,6 +138,7 @@ def modify_data_for_model(data: pd.DataFrame) -> pd.DataFrame:
         .mean()
     )
 
+    #Exponential weighted moving averages
     for stat in stat_list:
         data[f"{stat}_ewm_5"] = (
             data.groupby("TEAM_ID")[stat]
@@ -153,13 +154,28 @@ def modify_data_for_model(data: pd.DataFrame) -> pd.DataFrame:
             .mean()
         )
 
+    #Winstreaks
     data["winstreak"] = (
         data.groupby("TEAM_ID")["WL"]
           .shift(1)
           .groupby(data["TEAM_ID"])
           .transform(lambda x: x.groupby((x != 1).cumsum()).cumcount())
 
-    ).clip(-0.1,0.1)
+    ).clip(-0.1,0.1) #make sure model doesn't interpret large winstreaks as more important than they are
+
+    #Adds opponent data
+    data = create_opponent_data(data)
+
+    subtract_stat_list = ["WL_ewm_10", "PTS_ewm_10", "EFG_ewm_10", "TS_ewm_10", "ast_tov_ewm_10", "tov_rate_ewm_10", "oreb_rate_ewm_10", "stocks_ewm_10", "pf_rate_ewm_10"]
+    for stat in subtract_stat_list:
+        if stat == "WL_ewm_10":
+            data[f"{stat}_diff"] = (data[stat] - data[f"OPP_{stat}"]).clip(-0.1,0.1)
+        else:
+            data[f"{stat}_diff"] = data[stat] - data[f"OPP_{stat}"]
+
+    return data
+
+
 
     
 
