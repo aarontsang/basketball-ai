@@ -176,8 +176,90 @@ def modify_data_for_model(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 
+def create_data_split(data: pd.DataFrame):
+    X_train_list, y_train_list = [], []
+    X_test_list, y_test_list = [], []
+    seaon_id_2024_25 = data["SEASON_ID"].unique()
+    season_id_2025_26 = data["SEASON_ID"].unique()
 
-    
+    features = [
+        "WL_ewm_10_diff",
+        # "winstreak",
+        "PTS_ewm_10_diff",
+        "EFG_ewm_10_diff",
+        "TS_ewm_10_diff",
+        "ast_tov_ewm_10_diff",
+        "tov_rate_ewm_10_diff",
+        "oreb_rate_ewm_10_diff",
+        "stocks_ewm_10_diff",
+        "pf_rate_ewm_10_diff",
+        "PTS_ewm_10",
+        "EFG_ewm_10",
+        "TS_ewm_10",
+        "ast_tov_ewm_10",
+        "tov_rate_ewm_10",
+        "oreb_rate_ewm_10",
+        "stocks_ewm_10",
+        "pf_rate_ewm_10",
+        "IS_HOME",
+    ]
+    target = "WL"
+
+    train_mask = data["SEASON_ID"].isin(seaon_id_2024_25)
+    test_mask  = data["SEASON_ID"].isin(season_id_2025_26)
+
+    X_train_list.append(data.loc[train_mask, features])
+    y_train_list.append(data.loc[train_mask, target])
+
+    X_test_list.append(data.loc[test_mask, features])
+    y_test_list.append(data.loc[test_mask, target])
+
+    X_train = pd.concat(X_train_list, ignore_index=True)
+    y_train = pd.concat(y_train_list, ignore_index=True)
+
+    mid = len(X_test_list) // 2
+
+    X_test_list = X_test_list[mid:]
+    y_test_list = y_test_list[mid:]
+
+    X_val_list = X_test_list[:mid]
+    y_val_list = y_test_list[:mid]
+
+    X_test = pd.concat(X_test_list, ignore_index=True)
+    y_test = pd.concat(y_test_list, ignore_index=True)
+
+    X_val = pd.concat(X_val_list, ignore_index=True)
+    y_val = pd.concat(y_val_list, ignore_index=True)
+
+    return X_train, y_train, X_val, y_val, X_test, y_test
+
+
+def train_model(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, y_val: pd.Series) -> FrozenEstimator:
+    model = XGBClassifier(
+        n_estimators=600,
+        max_depth=3,
+        learning_rate=0.03,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        use_label_encoder=False,
+        eval_metric='logloss'
+    )
+
+    model.fit(
+        X_train,
+        y_train,
+        eval_set=[(X_val, y_val)],
+        early_stopping_rounds=50,
+        verbose=False
+    )
+
+    calibrated_model = CalibratedClassifierCV(base_estimator=model, method='isotonic', cv='prefit')
+    calibrated_model.fit(X_val, y_val)
+
+    frozen_model = FrozenEstimator(calibrated_model)
+
+    return frozen_model
+
 
 if __name__ == "__main__":
     pass
