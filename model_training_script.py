@@ -71,10 +71,16 @@ def create_opponent_data(data: pd.DataFrame) -> pd.DataFrame:
     return merged
 
 
+def get_data() -> pd.DataFrame:
+    csv_info_list = get_batch_csv_info()
+    data = pd.concat(csv_info_list, ignore_index=True)
+    data = sort_by_date(data)
+    return data
+
+
 def modify_data_for_model(data: pd.DataFrame) -> pd.DataFrame:
     stat_list = ["WL", "PTS", "EFG", "TS", "ast_tov", "tov_rate", "oreb_rate", "stocks", "pf_rate"]
-    # Example modification: Fill NaN values with 0
-    data = data.fillna(0)
+
     # Add more feature engineering steps as needed
 
     # Add IS_HOME column
@@ -262,4 +268,14 @@ def train_model(X_train: pd.DataFrame, y_train: pd.Series, X_val: pd.DataFrame, 
 
 
 if __name__ == "__main__":
-    pass
+    # Load data
+    nba_games_2024_25 = pd.read_csv('out/season_games_2024-25.csv')
+    nba_games_2025_26 = pd.read_csv('out/season_games_2025-26.csv')
+
+    data = pd.concat([nba_games_2024_25, nba_games_2025_26], ignore_index=True)
+
+    preprocessed_data = modify_data_for_model(data)
+
+    X_train, y_train, X_val, y_val, X_test, y_test = create_data_split(preprocessed_data)
+
+    model = train_model(X_train, y_train, X_val, y_val)
