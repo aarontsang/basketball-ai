@@ -33,5 +33,3 @@ KEYWORDS = [
 def is_relevant(title):
     title_lower = title.lower()
     return any(k.lower() in title_lower for k in KEYWORDS)
-
-
