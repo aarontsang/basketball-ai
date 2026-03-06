@@ -2,6 +2,7 @@ import pandas as pd
 from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.static import players
 from nba_api.stats.endpoints import teaminfocommon
+from thefuzz import process
 
 
 def _get_player_id(player_name, player_csv='out/players.csv'):
@@ -12,6 +13,30 @@ def _get_player_id(player_name, player_csv='out/players.csv'):
         return None
 
     return int(row['id'].values[0])
+
+
+def normalize_player_name(user_input):
+    """
+    Converts 'Steph' -> 'Stephen Curry' or handles 'Lebron' -> 'LeBron James'.
+    """
+    # 1. Try the built-in NBA API search (Great for partial matches)
+    nba_results = players.find_players_by_full_name(user_input)
+    if nba_results:
+        # Return the most relevant 'full_name' and its 'id'
+        return nba_results[0]['full_name'], nba_results[0]['id']
+
+    # 2. Fallback: Fuzzy matching against the entire league list
+    # This catches typos like 'Stphen Curry'
+    all_players = [p['full_name'] for p in players.get_players()]
+    # extractOne returns (best_match, score)
+    best_match, score = process.extractOne(user_input, all_players)
+    
+    # Only return if the match is confident (score > 80)
+    if score > 80:
+        match_data = players.find_players_by_full_name(best_match)[0]
+        return match_data['full_name'], match_data['id']
+    
+    return None, None
 
 
 def get_player_stats(

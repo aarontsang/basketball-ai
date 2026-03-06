@@ -4,6 +4,7 @@ from stats_query_handler import get_player_stats, get_team_info
 
 
 def get_player_stats_tool():
+
     player_stats_tool = FunctionTool.from_defaults(
         fn=get_player_stats,
         name="nba_stats_tool",
@@ -51,3 +52,4 @@ def get_team_stats_tool():
     )
     return team_stats_tool
     
+
