@@ -5,3 +5,12 @@ __pycache__/
 .vscode/
 .DS_Store
 discover.ipynb
+.env
+src/agent_chatbot/.env
+src/agent_chatbot/__pycache__/
+src/agent_chatbot/.vscode/
+src/agent_chatbot/out/
+src/agent_chatbot/.DS_Store
+src/agent_chatbot/nba_wikipedia_corpus.json
+src/agent_chatbot/golden_dataset.json
+src/agent_chatbot/stats_questions.json

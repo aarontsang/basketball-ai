@@ -1,0 +1,108 @@
+[
+    {
+        "question": "What are some key statistics for LeBron James during his NBA career?",
+        "answer": "Points per game: 27.1, Rebounds per game: 7.4, Assists per game: 7.2, Steals per game: 1.6, Blocks per game: 0.8"
+    },
+    {
+        "question": "What are Stephen Curry's average statistics for None season?",
+        "answer": "Points per game: 24.5, Rebounds per game: 4.5, Assists per game: 5.8, Steals per game: 1.6, Blocks per game: 0.3"
+    },
+    {
+        "question": "What are Giannis Antetokounmpo's average statistics for the None season?",
+        "answer": "25.2 points, 12.8 rebounds, 5.5 assists, 1.3 blocks per game"
+    },
+    {
+        "question": "What were Kevin Durant's statistics for the None season?",
+        "answer": "Points per game: Not applicable, Rebounds per game: Not applicable"
+    },
+    {
+        "question": "What are Nikola Jokic's averages for points per game, rebounds per game, assists per game, field goal percentage, three-point shooting percentage, and free throw shooting percentage in the None season?",
+        "answer": "18.5 points per game, 10.2 rebounds per game, 7.1 assists per game, .497 field goal percentage, .383 three-point shooting percentage, and .856 free throw shooting percentage."
+    },
+    {
+        "question": "What were Joel Embiid's statistics for the None season?",
+        "answer": "Points per game: N/A, Rebounds per game: N/A, Blocks per game: N/A, Steals per game: N/A, Assists per game: N/A"
+    },
+    {
+        "question": "What are Luka Doncic's season statistics for points per game, rebounds per game, assists per game, and blocks per game?",
+        "answer": {
+            "points per game": 28.8,
+            "rebounds per game": 9.5,
+            "assists per game": 8.7,
+            "blocks per game": 0.4
+        }
+    },
+    {
+        "question": "What are Ja Morant's average statistics for the None season?",
+        "answer": "Points per game: 17.8, Rebounds per game: 3.9, Assists per game: 7.4"
+    },
+    {
+        "question": "What are Devin Booker's stats for the None season?",
+        "answer": {
+            "Points Per Game": "20.5",
+            "Rebounds Per Game": "3.2",
+            "Assists Per Game": "4.1",
+            "Steals Per Game": "0.6",
+            "Blocks Per Game": "0.1"
+        }
+    },
+    {
+        "question": "What are Anthony Davis's statistics for None season?",
+        "answer": "Points per game: 26.5, Rebounds per game: 10.3, Assists per game: 2.3"
+    },
+    {
+        "question": "What were Kawhi Leonard's statistics for the None season?",
+        "answer": "Points per game: 16.9, Rebounds per game: 6.7, Assists per game: 2.1"
+    },
+    {
+        "question": "What are Damian Lillard's statistics for None season?",
+        "answer": "Points per game: 30.2, Rebounds: 4.3, Assists: 6.5, Steals: 1.0, Blocks: 0.2"
+    },
+    {
+        "question": "What were Zion Williamson's statistics for the None season?",
+        "answer": {
+            "Points Per Game (PPG)": 22.5,
+            "Rebounds Per Game (RPG)": 7.3,
+            "Assists Per Game (APG)": 2.1,
+            "Blocks Per Game (BPG)": 0.8
+        }
+    },
+    {
+        "question": "What are Jimmy Butler's statistics for the None season?",
+        "answer": "Points per game: 22.7, Rebounds per game: 5.3, Assists per game: 4.6"
+    },
+    {
+        "question": "What are Bradley Beal's statistics for the None season?",
+        "answer": "Points per game: N/A, Rebounds: N/A, Assists: N/A, Steals: N/A, Blocks: N/A"
+    },
+    {
+        "question": "What were Trae Young's stats during the None season?",
+        "answer": {
+            "Points Per Game (PPG)": 24.7,
+            "Rebounds Per Game (RPG)": 4.8,
+            "Assists Per Game (APG)": 9.5
+        }
+    },
+    {
+        "question": "What are Karl-Anthony Towns' statistics for the None season?",
+        "answer": "Points per game: N/A, Rebounds: N/A, Assists: N/A, Steals: N/A, Blocks: N/A"
+    },
+    {
+        "question": "What are Chris Paul's average points, assists, and steals per game for the None season?",
+        "answer": "10.2 PPG, 8.5 APG, 1.3 SPG"
+    },
+    {
+        "question": "What are Russell Westbrook's stats for the None season?",
+        "answer": "Points per game: 23.5, Rebounds per game: 7.9, Assists per game: 8.6"
+    },
+    {
+        "question": "What are Paul George's average statistics for the None season?",
+        "answer": {
+            "Ppg (Points per Game)": 18.1,
+            "Rpg (Rebounds per Game)": 6.7,
+            "Astpg (Assists per Game)": 3.2,
+            "Stlpg (Steals per Game)": 1.4,
+            "Bpg (Blocks per Game)": 0.5
+        }
+    }
+]
