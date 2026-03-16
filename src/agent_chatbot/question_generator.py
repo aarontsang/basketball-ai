@@ -1,3 +1,9 @@
+"""
+This file contains functions to generate a local dataset of question-answer pairs based on the 
+NBA Wikipedia corpus and to generate specific questions about player statistics. The dataset can 
+be used for training or evaluating the chatbot agent. The functions utilize a local Ollama model 
+to create structured JSON outputs that can be easily parsed and stored.
+"""
 import json
 import random
 from llama_index.llms.ollama import Ollama

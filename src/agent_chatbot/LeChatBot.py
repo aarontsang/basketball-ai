@@ -1,3 +1,12 @@
+"""
+This file defines the main chatbot agent that will interact with users. It sets up the language model
+and the tools that the agent can use to answer queries. The agent follows a ReAct reasoning 
+chain to determine which tools to use based on the user's question.The system prompt 
+defines the agent's role, the tools it has access to, and the operational protocol it should 
+follow when answering questions. The agent is designed to provide evidence-based comparisons 
+and statistics about NBA players and teams.
+"""
+
 import json
 import asyncio
 import os
@@ -11,6 +20,7 @@ from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata
 from agent_tools import get_player_stats_tool, get_team_stats_tool
 from llama_index.llms.groq import Groq
 from llama_index.core import StorageContext, load_index_from_storage
+
 
 system_prompt = """
 # ROLE

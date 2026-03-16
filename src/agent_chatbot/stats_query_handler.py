@@ -1,3 +1,13 @@
+"""
+This file defines functions to query NBA player and team statistics using the nba_api 
+library. The functions include:
+- get_player_stats: Retrieves various statistics for a given NBA player 
+based on parameters like scope, competition, and stat view.
+- get_team_info: Retrieves information about a given NBA team.
+The functions are designed to be used as tools within the chatbot agent, allowing it 
+to provide quantitative insights about players and teams when users ask for specific stats.
+"""
+
 import pandas as pd
 from nba_api.stats.endpoints import playercareerstats
 from nba_api.stats.static import players
@@ -80,8 +90,6 @@ def get_player_stats(
     if scope == "season" and season:
         df = df[df["SEASON_ID"] == season]
 
-    print(df)
-    print(df[0])
     return df
 
 

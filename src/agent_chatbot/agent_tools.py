@@ -1,6 +1,15 @@
+"""
+This file defines the tools that the agent can use to answer user queries.
+The tools include:
+- A RAG tool that uses a query engine to retrieve information from the document index.
+- A player stats tool that retrieves quantitative NBA player statistics and provides analysis.
+- A team stats tool that retrieves NBA team statistics.
+"""
+
 from llama_index.core.agent.workflow import ReActAgent
 from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata
 from stats_query_handler import get_player_stats, get_team_info
+
 
 
 def get_player_stats_tool():
