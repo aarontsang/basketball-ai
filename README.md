@@ -1,7 +1,8 @@
 # Basketball AI
 
 ## Project Breakdown
-
+This project plays around with NBA data primarily from the nba_api. There are two sections from this project,
+an NBA chatbot, and an XGBoost model for predictions.
 ## Frameworks
 
 ## Steps to Run
