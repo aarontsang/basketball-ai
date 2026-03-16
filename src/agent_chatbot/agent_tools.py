@@ -61,4 +61,3 @@ def get_team_stats_tool():
     )
     return team_stats_tool
     
-

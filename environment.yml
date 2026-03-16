@@ -11,3 +11,5 @@ dependencies:
   - scikit-optimize
   - matplotlib
   - ipykernel
+  - wikipedia-api
+  - nba-api

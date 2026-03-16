@@ -123,3 +123,4 @@ if __name__ == "__main__":
                "Jimmy Butler", "Bradley Beal", "Trae Young", "Karl-Anthony Towns", "Chris Paul", 
                "Russell Westbrook", "Paul George"]
     stats_questions_generation_script(players, season=None)
+    
