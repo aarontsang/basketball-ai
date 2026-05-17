@@ -14,3 +14,4 @@ src/agent_chatbot/.DS_Store
 src/agent_chatbot/nba_wikipedia_corpus.json
 src/agent_chatbot/golden_dataset.json
 src/agent_chatbot/stats_questions.json
+xgboost/models/

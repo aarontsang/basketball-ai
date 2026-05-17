@@ -10,6 +10,7 @@ and statistics about NBA players and teams.
 import json
 import asyncio
 import os
+import traceback
 from llama_index.core import Document
 from llama_index.core import Settings
 from llama_index.llms.ollama import Ollama
@@ -17,56 +18,49 @@ from llama_index.core.agent.workflow import ReActAgent
 from llama_index.core import Document, VectorStoreIndex, Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata
-from agent_tools import get_player_stats_tool, get_team_stats_tool
+from agent_tools import (
+    get_player_stats_tool,
+    get_team_stats_tool,
+    get_train_team_xgboost_tool,
+    get_train_player_xgboost_tool,
+    get_predict_team_matchup_tool,
+    get_predict_player_matchup_tool,
+)
 from llama_index.llms.groq import Groq
 from llama_index.core import StorageContext, load_index_from_storage
 
 
-system_prompt = """
-# ROLE
-You are a Senior NBA Data Analyst. Your goal is to provide evidence-based comparisons and statistics. You have access to three specific tools to help you answer queries accurately.
+AGENT_SYSTEM_PROMPT = """
+You are a Senior NBA Data Analyst.
 
-# TOOLS
-1. **rag_nba_wiki**: Use this for general knowledge, identifying "top candidates" for vague queries, or historical context. 
-   - Input: A search query string.
-2. **get_player_stats**: Use this for specific seasonal or career numbers. 
-   - Input: "player_name" (e.g., "LeBron James").
-3. **get_team_stats**: Use this for team-level performance, standings, or roster info.
-   - Input: "team_name" (e.g., "Los Angeles Lakers").
+CRITICAL — use these EXACT tool names in the Action line (copy exactly):
+- nba_history_tool
+- player_nba_stats_tool
+- team_nba_stats_tool
+- train_team_xgboost_model
+- train_player_xgboost_model
+- predict_team_matchup
+- predict_player_matchup
 
-# OPERATIONAL PROTOCOL (Reasoning Chain)
-When a user asks a question, you must follow these steps in your internal monologue:
+Never use made-up names like get_player_stats, get_team_stats, rag_nba_wiki, or train_xgboost_model.
 
-1. **Deconstruct the Query**: Identify if the query is "Specific" (e.g., "LeBron's PPG") or "Vague" (e.g., "Who is the best PG right now?").
-2. **Identify Candidates (For Vague Queries)**: If the query is vague, first use `rag_nba_wiki` to identify 3-5 top candidates based on current consensus or league leaders.
-3. **Gather Hard Data**: Once candidates are identified, call `get_player_stats` or `get_team_stats` for EACH candidate to get objective, current data.
-4. **Synthesize & Rank**: Compare the retrieved statistics against the user's criteria to form a conclusion.
-5. **Final Answer**: Present the data clearly, explain your reasoning, and state if the "best" is subjective based on the stats found.
+ML training (ReAct format):
+- Team / team-vs-team model → Action: train_team_xgboost_model / Action Input: {}
+- Player / player-vs-player model → Action: train_player_xgboost_model / Action Input: {}
 
-# GUIDELINES
-- **Ambiguity**: If a user says "the best," assume they mean the current season unless specified otherwise.
-- **Accuracy**: Never hallucinate stats. If the tool returns an error, inform the user you couldn't fetch the latest data.
-- **Formatting**: Use tables to compare stats between multiple players.
+After a training tool returns results, give the user a clear summary. Do not call unrelated tools.
 
-# EXAMPLE REASONING
-User: "Who is the best power forward in the league?"
-Thought: This is a vague query. I need to identify the top PFs first.
-Action: rag_nba_wiki("current top NBA power forwards 2024-2025")
-Observation: [Returns Giannis Antetokounmpo, Anthony Davis, Jayson Tatum]
-Thought: Now I need current stats for these three to compare them.
-Action: get_player_stats("Giannis Antetokounmpo"), get_player_stats("Anthony Davis"), get_player_stats("Jayson Tatum")
-... [Final synthesis follows]
+Stats & history:
+- Vague "who is the best" questions → nba_history_tool first, then player_nba_stats_tool per player.
+- Specific player stats → player_nba_stats_tool with JSON args, e.g. {{"player_name": "LeBron James", "scope": "season"}}.
+- Team info → team_nba_stats_tool with {{"team_name": "Los Angeles Lakers"}}.
 
-When providing answers, always maintain a professional NBA analyst tone, delivering clear and concise information based on the tools you have access to.
+Predictions (only after the matching model is trained):
+- predict_team_matchup → {{"home_team": "...", "away_team": "..."}}
+- predict_player_matchup → {{"player_a": "...", "player_b": "..."}}
 """
 
-Settings.llm = Ollama(
-
-system_prompt=system_prompt,
-
-model="llama3",
-
-temperature=0.1)
+Settings.llm = Ollama(model="llama3", temperature=0.1)
 
 
 Settings.embed_model = HuggingFaceEmbedding(
@@ -108,12 +102,13 @@ async def run_chatbot(agent):
         try:
             # 3. Use 'await agent.run()' and the parameter 'input'
 
-            response = await agent.run(user_msg=query)
+            response = await agent.run(user_msg=query, max_iterations=25)
 
             print(f"\nResponse: {response}")
 
         except Exception as e:
-            print(f"An error occurred: {e}")
+            print(f"An error occurred: {e!r}")
+            traceback.print_exc()
 
 
 if __name__ == "__main__":
@@ -145,11 +140,24 @@ if __name__ == "__main__":
 
     player_stats_tool = get_player_stats_tool()
     team_stats_tool = get_team_stats_tool()
+    train_team_tool = get_train_team_xgboost_tool()
+    train_player_tool = get_train_player_xgboost_tool()
+    predict_team_tool = get_predict_team_matchup_tool()
+    predict_player_tool = get_predict_player_matchup_tool()
 
     agent = ReActAgent(
-        tools=[rag_tool, player_stats_tool, team_stats_tool], 
-        llm=Settings.llm, 
-        verbose=True # This lets you see the agent's "thought" process
+        tools=[
+            rag_tool,
+            player_stats_tool,
+            team_stats_tool,
+            train_team_tool,
+            train_player_tool,
+            predict_team_tool,
+            predict_player_tool,
+        ],
+        llm=Settings.llm,
+        system_prompt=AGENT_SYSTEM_PROMPT,
+        verbose=True,
     )
 
     asyncio.run(run_chatbot(agent))

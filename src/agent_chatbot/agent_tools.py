@@ -1,63 +1,87 @@
 """
-This file defines the tools that the agent can use to answer user queries.
-The tools include:
-- A RAG tool that uses a query engine to retrieve information from the document index.
-- A player stats tool that retrieves quantitative NBA player statistics and provides analysis.
-- A team stats tool that retrieves NBA team statistics.
+Tools for the NBA chatbot agent: RAG, stats lookup, XGBoost training, and matchup prediction.
 """
 
-from llama_index.core.agent.workflow import ReActAgent
-from llama_index.core.tools import FunctionTool, QueryEngineTool, ToolMetadata
+from llama_index.core.tools import FunctionTool
 from stats_query_handler import get_player_stats, get_team_info
-
+from ml_training_handler import (
+    train_team_xgboost_model,
+    train_player_xgboost_model,
+    predict_team_matchup,
+    predict_player_matchup,
+)
 
 
 def get_player_stats_tool():
-
-    player_stats_tool = FunctionTool.from_defaults(
+    return FunctionTool.from_defaults(
         fn=get_player_stats,
         name="player_nba_stats_tool",
-        description="""
-        CRITICAL: Use this tool when the user asks for quantative NBA player statistics. 
-        including both traditional stats (points, rebounds, assists) and advanced metrics (PER, TS%, etc.).
-        Extract the parameters below from the user's query and pass them to the function.
-
-        Parameters:
-        - player_name: full name of NBA player
-        - scope: 'season' or 'career'
-        - competition: 'regular', 'postseason', or 'allstar'
-        - stat_view: 'per_game', 'totals', or 'advanced'
-        - season: season in format '2023-24' (optional)
-
-
-        After getting the stats, provide a concise analysis of the player's 
-        performance based on the numbers. Highlight any notable strengths, weaknesses, 
-        or trends in the data. For example, if a player's PER is particularly high,
-        mention that they are performing well overall. If their TS% is low, note that 
-        they may be struggling with shooting efficiency. Use the stats to provide 
-        insights into the player's game and how they compare to league averages or
-        other players at their position.
-        """
+        description=(
+            "Use for quantitative NBA player statistics (points, rebounds, assists, etc.). "
+            "Parameters: player_name (required), scope ('season'|'career'), "
+            "competition ('regular'|'postseason'|'allstar'), view ('totals'|'rankings'), "
+            "season (optional, e.g. '2023-24')."
+        ),
     )
-    return player_stats_tool
-
 
 
 def get_team_stats_tool():
-    team_stats_tool = FunctionTool.from_defaults(
-    fn=get_team_info,
-    name="team_nba_stats_tool",
-    description="""
-    Use this tool when the user asks for NBA team statistics. 
-    Extract the parameters below from the user's query and pass them to the function.
-
-    Parameters:
-    - team_name: full name of NBA team
-    - scope: 'season' or 'career'
-    - competition: 'regular', 'postseason', or 'allstar'
-    - stat_view: 'per_game', 'totals', or 'advanced'
-    - season: season in format '2023-24' (optional)
-    """
+    return FunctionTool.from_defaults(
+        fn=get_team_info,
+        name="team_nba_stats_tool",
+        description=(
+            "Use for NBA team info and roster details. "
+            "Parameters: team_name (required, e.g. 'Los Angeles Lakers')."
+        ),
     )
-    return team_stats_tool
-    
+
+
+def get_train_team_xgboost_tool():
+    return FunctionTool.from_defaults(
+        fn=train_team_xgboost_model,
+        name="train_team_xgboost_model",
+        return_direct=True,
+        description=(
+            "Train the team-vs-team XGBoost model (predicts game winners). "
+            "Use when the user asks to train/build/retrain a TEAM or team-vs-team model. "
+            "No parameters — use Action Input: {}."
+        ),
+    )
+
+
+def get_train_player_xgboost_tool():
+    return FunctionTool.from_defaults(
+        fn=train_player_xgboost_model,
+        name="train_player_xgboost_model",
+        return_direct=True,
+        description=(
+            "Train the player-vs-player XGBoost model (predicts who outperforms in a matchup). "
+            "Use when the user asks to train/build/retrain a PLAYER or player-vs-player model. "
+            "No parameters — use Action Input: {}."
+        ),
+    )
+
+
+def get_predict_team_matchup_tool():
+    return FunctionTool.from_defaults(
+        fn=predict_team_matchup,
+        name="predict_team_matchup",
+        return_direct=True,
+        description=(
+            "Predict a game winner after train_team_xgboost_model has been run. "
+            "Parameters: home_team, away_team (e.g. home_team='Los Angeles Lakers', "
+            "away_team='Boston Celtics')."
+        ),
+    )
+
+
+def get_predict_player_matchup_tool():
+    return FunctionTool.from_defaults(
+        fn=predict_player_matchup,
+        name="predict_player_matchup",
+        return_direct=True,
+        description=(
+            "Predict which player outperforms after train_player_xgboost_model has been run. "
+            "Parameters: player_a, player_b (full names)."
+        ),
+    )

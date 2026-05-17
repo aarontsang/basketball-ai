@@ -2,3 +2,6 @@ nba_api
 requests
 numpy
 pandas
+xgboost
+scikit-learn
+joblib
