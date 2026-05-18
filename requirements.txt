@@ -5,3 +5,11 @@ pandas
 xgboost
 scikit-learn
 joblib
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.0.0
+llama-index-core
+llama-index-llms-ollama
+llama-index-embeddings-huggingface
+sentence-transformers
+thefuzz
